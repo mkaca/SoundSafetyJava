@@ -4,67 +4,122 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 public class MainActivity extends AppCompatActivity {
 
-    AudioManager myAudioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
-
-    // Init UI
-    TextView tv1 = (TextView)findViewById(R.id.textView1);
-    Button btnStop = (Button)findViewById(R.id.btnStop);
-    Button btnStart = (Button)findViewById(R.id.btnStart);
+    TextView tv1;
+    Button btnToggle;
+    String currentDateTimeString;
+    int valueRead;
+    AudioManager myAudioManager;
+    int thresholdValueMedia = 6; // Arbitrary max value (determined by user test)
 
     // For managing threads
-    boolean running = true;
+    boolean running = false;
+
+
+    // Class for thread
+    class CustomThreadBoy extends Thread {
+
+        //String time;
+        //int volume;
+        //Constructor
+        //CustomThreadBoy(int volume, String time) {
+            //this.volume = volume;
+            //this.time = time;
+        //}
+
+        public void run() {
+            while (running) {
+                // 2 = Ringer,   3 = Media,  4 = Alarm
+                valueRead = myAudioManager.getStreamVolume(3);
+                currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+                Log.d("ThreadRun", "Thread is running noicely: " + currentDateTimeString);
+                Log.d("ThreadRun", "Volume level: " + valueRead);
+
+                // Limits max volume
+                if (myAudioManager.getStreamVolume(3) > thresholdValueMedia){
+                    myAudioManager.setStreamVolume(3, thresholdValueMedia,1);
+                }
+
+                if (!running) {
+                    Thread.currentThread().interrupt();
+                    Log.d("ThreadRun", "THREAD IS INTERRUPTED. KILLING IT.");
+                    return;
+                }
+                // Sleep thread
+                try {
+                    // thread to sleep for 1000 milliseconds
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+        }
+    }
+
+    CustomThreadBoy customThreadBoy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // Init UI
+        tv1 = (TextView) findViewById(R.id.textView1);
+        tv1.setText("Thread STOPPED");
+        btnToggle = (Button) findViewById(R.id.btnToggle);
+        myAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
-        // stops thread
-        btnStop.setOnClickListener(new View.OnClickListener() {
+        /////////////////////// ALL LOGIC GOES IN HERE /////////////////////////
+
+        // Stream1: Ringer
+        valueRead = myAudioManager.getStreamVolume(2);
+        currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        // Init Thread
+        //customThreadBoy = new CustomThreadBoy(valueRead, currentDateTimeString);
+        customThreadBoy = new CustomThreadBoy();
+
+        btnToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                running = false;
-                tv1.setText("STOPPED");
+                currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+
+                // If thread is running
+                if (running) {
+                    // Toggle logic --> Stop thread
+                    tv1.setText("Thread STOPPED");
+                    running = false;
+                    Log.d("Thread","Thread is STOPPED: " + currentDateTimeString );
+
+                    //Pause/Kill Thread
+                    customThreadBoy.interrupt();
+                    //Log.d("Thread"," Is interrupted:" + Boolean.toString(customThreadBoy.isInterrupted()) );
+                    //Log.d("Thread"," Is Alive:" + Boolean.toString(customThreadBoy.isAlive()) );
+                }
+
+                // If thread is stopped
+                else {
+                    // Toggle logic --> Start/Continue thread
+                    tv1.setText("Thread Running");
+                    running = true;
+                    Log.d("Thread","Thread is running noicely: " + currentDateTimeString );
+
+                    //Start/ Resume thread
+                    customThreadBoy.start();
+                }
+
             }
         });
-
-        // Allows thread to run
-        btnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                running = true;
-            }
-        });
-
-
-        // Thread goes here
-        new Thread(new Runnable() {
-            public void run() {
-                tv1.post(new Runnable() {
-                    public void run() {
-                        while (running) {
-                            // do stuff here
-                            int valueRead = myAudioManager.getStreamVolume(1);
-                            tv1.setText("RUNNING " + valueRead);
-                            // Sleep thread
-                            try {
-                                // thread to sleep for 1000 milliseconds
-                                Thread.sleep(1000);
-                            } catch (Exception e) {
-                                System.out.println(e);
-                            }
-                        }
-                    }
-                });
-            }
-        }).start();
     }
+
+}
 
 
 
@@ -102,4 +157,4 @@ public class MainActivity extends AppCompatActivity {
    later, in another thread, you can shut it down by setting running to false
     running = false;*/
 
-}
+

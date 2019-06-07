@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">SoundSafetyJava</string>
+    <string name="test_text_view">TEST TEXT VIEW</string>
+    <string name="start">Start</string>
+    <string name="stoptext">Stop</string>
+    <string name="toggle">Toggle</string>
 </resources>
