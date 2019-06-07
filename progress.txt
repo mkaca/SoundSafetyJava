@@ -1,0 +1,11 @@
+Created Kotlin workspace, didn't like Kotlin
+Created Java workspace
+Made app logic
+  Audio manager handles everything sound-related for us
+Tried to apply via Runnable method --> lack of thread control
+Tried to apply via Executor --> Runnable method --> huge pain in the ass
+Tried to apply via standard threading --> wouldn't stop via Thread.interrupt()
+  Finally worked in a controllable manner using Threading and custom flags
+Alterantive way (which should work) is to use Handlers --> Use this if we want to modify UI in our audioManager thread (which we shouldn't have to do)
+
+TODO: Run app in background in a controllable way without taking up too much phone processing
