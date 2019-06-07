@@ -121,16 +121,11 @@ public class MainActivity extends AppCompatActivity {
 
 }
 
-
-
       /*
 
     Below is for setting color to make it nicer too :)
     TextView mTextView = new
     mTextView.setTextColor(Color.parseColor("#bdbdbd"));
-
-    Verify if audio is actually getting limitied with text display
-    Audio limit toggled by button
 
     At all times:
     if volume exceeds XXX, then lower it
@@ -142,19 +137,6 @@ public class MainActivity extends AppCompatActivity {
     AudioManager for all HW audio monitoring and changing
 
     If raise volume detected, check volume, if exceeds threshold, decrease volume to threshold
-
-  private final volatile running = true;
-    ...
-    new Thread(new Runnable() {
-        public void run() {
-            while (running) {
-                // do something in the loop
-            }
-        }
-    }).start();
-    ...
-
-   later, in another thread, you can shut it down by setting running to false
-    running = false;*/
+    */
 
 
