@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     int thresholdValueMedia = 6; // Arbitrary max value (determined by user test)
 
     // For managing threads
-    boolean running = false;    // THIS WILL HAVE TO BE CHECKED --> IF APP GETS RESTARTED WHILE SERVICE IS STILL RUNNING --> TODODOODDOODDODOO
+    int running = 0;    // THIS WILL HAVE TO BE CHECKED --> IF APP GETS RESTARTED WHILE SERVICE IS STILL RUNNING --> TODODOODDOODDODOO
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         tv1 = (TextView) findViewById(R.id.textView1);
         tv1.setText("Thread STOPPED");
         btnToggle = (Button) findViewById(R.id.btnToggle);
+        //MyService.myAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         myAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         valueRead = myAudioManager.getStreamVolume(2);
@@ -46,40 +47,51 @@ public class MainActivity extends AppCompatActivity {
         btnToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent serviceIntent = new Intent(v.getContext(), MyService.class);
                 currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
 
                 // If thread is running
-                if (running) {
+                if (running == 1) {
                     // Toggle logic --> Stop thread
                     tv1.setText("Service STOPPED");
 
-
-
                     //Pause/Kill Thread
-
+                    MyService.running = 0;
+                    running = 0;
+                    stopService(serviceIntent);
                     Log.d("Service","Service is STOPPED: " + currentDateTimeString );
-                    running = false;
-
                 }
 
                 // If thread is stopped
                 else {
                     // Toggle logic --> Start/Continue thread
-                    Intent serviceIntent = new Intent(v.getContext(), MyService.class);
-                    serviceIntent.putExtra("intParamArray",new int[]{1, 2, 3});     ///////// REPLACE 1,2,3 with array!!!
+                    //serviceIntent.putExtra("intParamArray",new int[]{1, 2, 3});     ///////// REPLACE 1,2,3 with array!!!   --> don't need cuz of static tingz
                     startService(serviceIntent);
 
                     // Service should do most the heavy lifting
 
                     Log.d("Service","Service is RUNNING: " + currentDateTimeString );
-                    running = true;
+                    MyService.running = 1;
+                    running = 1;
                 }
 
             }
         });
     }
 
+
+
+
+
 }
+
+
+
+  //// int dirCount = Control.dirCount;   // changes static varaible of Service class
+
+
+
+
 
       /*
 
